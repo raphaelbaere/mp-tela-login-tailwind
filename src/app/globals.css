@@ -3,15 +3,69 @@
 @tailwind utilities;
 
 :root {
-  @apply h-full bg-black
+  @apply h-full bg-black w-full
 }
 
 body {
-  @apply h-full bg-black
+  @apply h-full bg-black w-full
 }
 
 .bg-planet1 {
   background-image: url('https://jkhub.org/wiki/images/0/01/Tatooine.png');
+}
+
+@keyframes reappear {
+  0% {
+    width: 0;
+    background-color: transparent;
+  }
+  50% {
+    width: 44px;
+    background-color: transparent;
+  }
+  100% {
+    width: 44px;
+    background-color: red;
+  }
+}
+
+.animate-bar-red {
+  animation-name: reappear;
+  animation-duration: 1s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes shrink {
+  0% {
+    width: 208px;
+  }
+  100% {
+    width: 0;
+  }
+}
+
+@keyframes appear {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 208px;
+  }
+}
+
+.light-up {
+  animation-name: appear;
+  animation-duration: 1s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
+.light-shrink {
+  animation-name: shrink;
+  animation-duration: 1s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
 }
 
 .bg-planet2 {

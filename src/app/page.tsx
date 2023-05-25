@@ -1,7 +1,12 @@
 "use client"
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './globals.css';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import xwing1 from '../../public/x-wing1.png';
+import republicCrusader1 from '../../public/republicCrusader.png';
+import Image from 'next/image';
+import tieFighter1 from '../../public/tieFighter1.png';
+import empireCrusader1 from '../../public/empireCrusader1.png';
 
 
 export default function Home() {
@@ -9,7 +14,55 @@ export default function Home() {
   const [email, setEmail] = useState('');
   const [emailHelperText, setEmailHelperText] = useState('');
   const [password, setPassword] = useState('');
+  const storedLightMode = localStorage.getItem('lightmode');
+  const storedDarkMode = localStorage.getItem('darkmode');
+  const initialLightMode = storedLightMode ? JSON.parse(storedLightMode) : true;
+  const initialDarkMode = storedDarkMode ? JSON.parse(storedDarkMode) : false;
   const [passwordHelperText, setPasswordHelperText] = useState('');
+  const [isLightMode, setIsLightMode] = useState(storedLightMode ? initialLightMode : true);
+  const [lightsaber, setLightSaber] = useState('');
+  const [isDarkMode, setIsDarkMode] = useState(storedDarkMode ? initialDarkMode : false);
+  const [audio, setAudio] = useState(new Audio('/audios/power-down.mp3'));
+  const [volume] = useState(0.1);
+
+  const handleModeToggle = () => {
+    if (!isLightMode) {
+      if (lightsaber === 'light-up') {
+        setLightSaber('light-shrink');
+        audio.volume = volume;
+        audio.play();
+        setAudio(new Audio('/audios/power-up.mp3'));
+      } else {
+        audio.volume = volume;
+        audio.play();
+        setAudio(new Audio('/audios/power-down.mp3'));
+        setLightSaber('light-up')
+      }
+      setIsLightMode(!isLightMode);
+      localStorage.setItem('lightmode', JSON.stringify(!isLightMode));
+      return;
+    }
+    if (isLightMode) {
+      setLightSaber('light-shrink');
+      audio.volume = volume;
+      audio.play();
+      setAudio(new Audio('/audios/power-up.mp3'));
+      setIsLightMode(!isLightMode);
+      localStorage.setItem('lightmode', JSON.stringify(!isLightMode));
+      return;
+    }
+  };
+  
+  const handleAnimationEnd = () => {
+    if (lightsaber === 'light-shrink') {
+      audio.volume = volume;
+      audio.play();
+      setAudio(new Audio('/audios/power-down.mp3'));
+      setIsDarkMode(!isDarkMode);
+      localStorage.setItem('darkmode', JSON.stringify(!isDarkMode));
+      setLightSaber('light-up');
+    }
+  }
 
 
   const onSubmit = () => {
@@ -28,14 +81,27 @@ export default function Home() {
     }
     return null;
   }
+  
 
   return (
+    <div>
+      <header className="w-screen h-10 z-10 items-center flex justify-center border border-t-0 border-r-0 border-l-0 border-yellow-500 bg-black">
+      <img
+      onClick={handleModeToggle}
+      style={{ zIndex: 99 }}
+      src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/b63b52f4-e3cd-44ed-abae-c2972100be5c/dcedy9x-28c30129-56f9-459c-990b-adc65a762e5e.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcL2I2M2I1MmY0LWUzY2QtNDRlZC1hYmFlLWMyOTcyMTAwYmU1Y1wvZGNlZHk5eC0yOGMzMDEyOS01NmY5LTQ1OWMtOTkwYi1hZGM2NWE3NjJlNWUucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0._rUREn58aEMGXcy3jLhQJ82zJiiNJou1G7HDlb7fJuk" alt="DarkMode" 
+      className="transform rotate-90 w-10 mr-5 cursor-pointer"
+      />
+      <div onClick={handleModeToggle} onAnimationEnd={handleAnimationEnd} className={`${isDarkMode ? 'bg-red-500' : 'bg-green-500'} shadow-lg shadow-red-500 h-2 w-52 mr-6 rounded ${lightsaber}`}>
+
+      </div>
+      </header>
     <div className="flex flex-row lg:p-20 sm:p-0 lg:justify-start lg:items-center md:items-center sm:items-start h-full w-full bg-black">
       <div className="absolute inset-0 z-0">
       {Array.from({ length: 100 }).map((_, index) => (
           <div
             key={index}
-            className={`star absolute w-0.5 h-0.5 transition rounded-full bg-white opacity-${Math.floor(Math.random() * 60) + 40}`}
+            className={`absolute w-0.5 h-0.5 transition rounded-full bg-white opacity-${Math.floor(Math.random() * 60) + 40}`}
             style={{ top: `${Math.random() * 95}%`, left: `${Math.random() * 95}%` }}
           ></div>
         ))}
@@ -45,17 +111,39 @@ export default function Home() {
           <div
            key={index}
            className={`planet absolute w-20 h-20 transition bg-gray-400 rounded-full bg-center bg-no-repeat bg-planet${index === 0 ? '1' : index}`}
-          style={{ top: `${Math.random() * 80}%`, left: `${Math.random() * 80}%`, zIndex: -1 }}>
+          style={{ top: `${Math.random() * 80}%`, left: `${Math.random() * 80}%`, zIndex: -2 }}>
           </div>
+        </CSSTransition>
+      ))}
+      {Array.from({ length: 5}).map((_, index) => (
+        <CSSTransition key={index} timeout={500} classNames="planet">
+          <Image
+          alt="x-wing"
+          src={isLightMode ? xwing1 : tieFighter1}
+           key={index}
+           className={`planet w-10 absolute`}
+          style={{ top: `${Math.random() * 80 + 10}%`, left: `${Math.random() * 80}%`, zIndex: -1 }}>
+          </Image>
+        </CSSTransition>
+      ))}
+            {Array.from({ length: 2}).map((_, index) => (
+        <CSSTransition key={index} timeout={500} classNames="planet">
+          <Image
+          alt="x-wing"
+          src={isLightMode ? republicCrusader1 : empireCrusader1}
+           key={index}
+           className={`planet ${isLightMode ? 'w-12.5' : 'w-1/6'} absolute`}
+          style={{ top: `${Math.random() * 60}%`, left: `${Math.random() * 60}%`, zIndex: -2 }}>
+          </Image>
         </CSSTransition>
       ))}
       </TransitionGroup>
       </div>
-      <div style={{ zIndex: 1}} className="lg:w-3/6 bg-transparent h-4/6 sm:w-2/3 flex flex-row flex-wrap justify-center items-center">
+      <div style={{ zIndex: 1}} className={`bg-black lg:w-3/6 bg-opacity-70 rounded shadow h-4/6 sm:w-2/3 flex flex-row flex-wrap justify-center items-center`}>
         <div className="flex flex-col w-full h-full justify-start items-start m-5">
           <div className="lg:w-10/12 sm:w-full flex flex-row lg:justify-center   sm:justify-start items-center flex-wrap">
           <h1 className='text-yellow-500 m-0 self-start font-bold text-6xl w-full lg:text-center'>Faça seu login.</h1>
-          <span className="text-yellow-500 self-start text-center opacity-70 from-stone-500 italic">E que a força esteja com você.</span>
+          <span className="text-yellow-500 self-start text-center opacity-70 from-stone-500 italic">{isLightMode ? 'E que a força esteja com você.' : 'E que o lado negro da força te dê poder.'}</span>
           </div>
           <div className="flex flex-col w-10/12 sm:w-full">
             <label className="text-yellow-500 m-1 font-semibold" htmlFor="email">Email</label>
@@ -76,6 +164,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+    </div>
     </div>
   )
 }
